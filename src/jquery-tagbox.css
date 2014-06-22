@@ -34,3 +34,9 @@
   display: inline-block;
   vertical-align: top;
 }
+.tagbox-container .tagbox-input .tagbox-wg[contenteditable] {
+  min-width: 5px;
+}
+.tagbox-container .tagbox-input .tagbox-wg[contenteditable]:focus {
+  outline: 0px solid transparent;
+}

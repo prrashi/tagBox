@@ -54,6 +54,15 @@
 
       display: inline-block;
       vertical-align: top;
+
+      &[contenteditable] {
+
+        min-width: 5px;
+        &:focus {
+
+          outline: 0px solid transparent;
+        }
+      }
     }
   }
 }
