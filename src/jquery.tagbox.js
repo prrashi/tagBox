@@ -92,18 +92,18 @@
 
   function tagBox (options) {
 
-	  options = $.extend(options, DEFAULTS);
+    options = $.extend(options, DEFAULTS);
 
-		/* jshint validthis:true */
-		return $.each(this, function (index, node) {
+    /* jshint validthis:true */
+    return $.each(this, function (index, node) {
 
-      var tagName = node.tagName;
+             var tagName = node.tagName;
 
-      if(tagName === "TEXTAREA" || tagName === "INPUT"){
+             if(tagName === "TEXTAREA" || tagName === "INPUT"){
 
-			  _tagBox($(node), options);
-      }
-    });
+               _tagBox($(node), options);
+             }
+           });
   }
 
   $.fn.tagBox = tagBox;
