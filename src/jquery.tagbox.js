@@ -35,8 +35,26 @@
 
   }
 
-  function removeEditable () {
+  function removeEditable ($editable) {
 
+    var $prevElement = $editable.prev();
+
+    if($prevElement.length === 0){
+
+      return $editable.text("");
+    }else {
+
+      while ($editable.prev(".tagbox-wg").length === 0) {
+
+        $editable.prev().remove();
+      }
+
+      $prevElement = $editable.prev();
+
+      $editable.remove();
+
+      return $prevElement;
+    }
   }
 
   function _tagBox ($textarea, options) {
@@ -58,7 +76,7 @@
 
     var focusCurrentEditable = function () {
 
-      $currentEditable.focus();
+      $currentEditable.attr("contenteditable", "true").focus();
     };
 
     /* Event Handlers */
@@ -74,16 +92,14 @@
 
                   e.preventDefault();
 
-                  var $br = $("<br/>");
+                  $("<br/>").appendTo($tagbox);
 
-                  if($currentEditable.text().length === 0){
+                  $currentEditable = addEditable($tagbox);
 
-                    $br.insertBefore($currentEditable);
-                  }else {
+                  focusCurrentEditable();
+                }else if (key === BKSP && $currentEditable.text().length === 0) {
 
-                    $br.appendTo($tagbox);
-                    $currentEditable = addEditable($tagbox);
-                  }
+                  $currentEditable = removeEditable($currentEditable);
 
                   focusCurrentEditable();
                 }
