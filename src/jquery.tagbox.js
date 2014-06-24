@@ -22,17 +22,55 @@
       BKSP   = 8,
       ESC    = 27;
 
+
+  function setCursorPosition (el, pos) {
+
+    var range = null;
+
+    if (typeof window.getSelection !== "undefined" &&
+        typeof document.createRange !== "undefined") {
+
+      range = document.createRange();
+
+      range.selectNodeContents(el);
+
+      range.collapse(false);
+
+      var sel = window.getSelection();
+
+      sel.removeAllRanges();
+
+      sel.addRange(range);
+    }else if(typeof document.body.createTextRange !== "undefined") {
+
+      range = document.body.createTextRange();
+
+      range.moveToElementText(el);
+
+      range.collapse(false);
+
+      range.select();
+    }
+  }
+
+  function focusEditable ($editable) {
+
+    $editable.siblings("span.tagbox-wg[contenteditable]").removeAttr("contenteditable");
+
+    return $editable.attr("contenteditable", "true").focus();
+  }
+
   function addEditable ($container, text, isHtml) {
 
     text = text || "";
 
     $container.children("span.tagbox-wg").removeAttr("contenteditable");
 
-    return $("<span/>").attr("contenteditable", "true")
-                       .addClass("tagbox-wg")
-                       [isHtml? "html": "text"](text)
-                       .appendTo($container);
+    var $new_el =  $("<span/>").addClass("tagbox-wg")
+                               [isHtml? "html": "text"](text)
+                               .appendTo($container);
 
+    return focusEditable($new_el);
   }
 
   function removeEditable ($editable) {
@@ -74,13 +112,21 @@
 
     var $currentEditable = addEditable($tagbox, existingVal);
 
-    var focusCurrentEditable = function () {
+    /* Event Handlers */
 
-      $currentEditable.attr("contenteditable", "true").focus();
+    function on_click_handler (e) {
+
+      var $node = $(e.target);
+
+      //if the node is a wordgroup span, focus the cursor there
+      if ($node.hasClass("tagbox-wg")) {
+
+        $currentEditable = focusEditable($node);
+      }
     };
 
-    /* Event Handlers */
-    $container.on("click", focusCurrentEditable)
+
+    $container.on("click", on_click_handler)
               .on("keyup", "[contenteditable='true']", function (e) {
 
               })
@@ -96,12 +142,14 @@
 
                   $currentEditable = addEditable($tagbox);
 
-                  focusCurrentEditable();
                 }else if (key === BKSP && $currentEditable.text().length === 0) {
 
                   $currentEditable = removeEditable($currentEditable);
 
-                  focusCurrentEditable();
+                  focusEditable($currentEditable);
+
+                  setCursorPosition($currentEditable.get(0));
+
                 }
               });
   }
