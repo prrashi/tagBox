@@ -25,6 +25,16 @@
 
   function setCursorPosition (el, pos) {
 
+    var nodeTextLength = $(el).text().length;
+
+    if (pos === "start") {
+
+      pos = 0;
+    }else if (pos === "end") {
+
+      pos = nodeTextLength;
+    }
+
     var range = null;
 
     if (typeof window.getSelection !== "undefined" &&
@@ -32,16 +42,25 @@
 
       range = document.createRange();
 
-      range.selectNodeContents(el);
+      el = el.childNodes[0];
 
-      range.collapse(false);
+      range.setStart(el, pos);
 
+      range.setEnd(el, nodeTextLength);
+
+      range.collapse(true);
+
+      //TODO: Check the compatibility for selection and write fallback
       var sel = window.getSelection();
 
       sel.removeAllRanges();
 
       sel.addRange(range);
-    }else if(typeof document.body.createTextRange !== "undefined") {
+
+    }
+
+    //TODO: Position not implement for IE
+    else if(typeof document.body.createTextRange !== "undefined") {
 
       range = document.body.createTextRange();
 
@@ -66,18 +85,18 @@
 
     $container.children("span.tagbox-wg").removeAttr("contenteditable");
 
-    var $new_el =  $("<span/>").addClass("tagbox-wg")
+    var $newNode =  $("<span/>").addClass("tagbox-wg")
                                [isHtml? "html": "text"](text)
                                .appendTo($container);
 
-    return focusEditable($new_el);
+    return focusEditable($newNode);
   }
 
   function removeEditable ($editable) {
 
-    var $prevElement = $editable.prev();
+    var $prevNode = $editable.prev();
 
-    if($prevElement.length === 0){
+    if($prevNode.length === 0){
 
       return $editable.text("");
     }else {
@@ -87,21 +106,23 @@
         $editable.prev().remove();
       }
 
-      $prevElement = $editable.prev();
+      $prevNode = $editable.prev();
 
       var text = $editable.text(),
-          prev_ele_text = $prevElement.text();
+          prevNodeText = $prevNode.text();
 
-      focusEditable($prevElement);
+      focusEditable($prevNode);
 
       if (text.length > 0) {
 
-        $prevElement.text($prevElement.text() + text);
+        $prevNode.text(prevNodeText + text);
       }
 
       $editable.remove();
 
-      return $prevElement;
+      setCursorPosition($prevNode.get(0), prevNodeText.length);
+
+      return $prevNode;
     }
   }
 
@@ -124,7 +145,7 @@
 
     /* Event Handlers */
 
-    function on_click_handler (e) {
+    function onClickHandler (e) {
 
       var $node = $(e.target);
 
@@ -133,10 +154,9 @@
 
         $currentEditable = focusEditable($node);
       }
-    };
+    }
 
-
-    $container.on("click", on_click_handler)
+    $container.on("click", onClickHandler)
               .on("keyup", "[contenteditable='true']", function (e) {
 
               })
@@ -153,11 +173,11 @@
 
                   var $br = $("<br/>");
 
-                  var cur_text = $currentEditable.text();
+                  var curText = $currentEditable.text();
 
-                  var pre_text, post_text;
+                  var preText, postText;
 
-                  if (offset === 0 && cur_text.length !== 0){
+                  if (offset === 0 && curText.length !== 0){
 
                     $br.insertBefore($currentEditable);
 
@@ -168,13 +188,13 @@
 
                     $br.insertAfter($currentEditable);
 
-                    pre_text = cur_text.substr(0, offset);
+                    preText = curText.substr(0, offset);
 
-                    post_text = cur_text.substr(offset);
+                    postText = curText.substr(offset);
 
-                    $currentEditable.text(pre_text);
+                    $currentEditable.text(preText);
 
-                    $currentEditable = addEditable($tagbox, post_text);
+                    $currentEditable = addEditable($tagbox, postText);
 
                     focusEditable($currentEditable.insertAfter($br));
                   }
