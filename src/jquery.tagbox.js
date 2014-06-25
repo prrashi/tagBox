@@ -89,6 +89,16 @@
 
       $prevElement = $editable.prev();
 
+      var text = $editable.text(),
+          prev_ele_text = $prevElement.text();
+
+      focusEditable($prevElement);
+
+      if (text.length > 0) {
+
+        $prevElement.text($prevElement.text() + text);
+      }
+
       $editable.remove();
 
       return $prevElement;
@@ -134,26 +144,26 @@
 
                 var key = e.which || e.keyCode;
 
+                var selection = window.getSelection(),
+                    offset = selection.focusOffset;
+
                 if (key === RETURN) {
 
                   e.preventDefault();
 
                   var $br = $("<br/>");
 
-                  var selection = window.getSelection(),
-                      offset = selection.focusOffset;
-
                   var cur_text = $currentEditable.text();
 
                   var pre_text, post_text;
 
-                  if (offset === 0){
+                  if (offset === 0 && cur_text.length !== 0){
 
                     $br.insertBefore($currentEditable);
 
-                    $currentEditable = addEditable($tagbox);
+                    addEditable($tagbox).insertBefore($br);
 
-                    $currentEditable.insertBefore($br).focus();
+                    focusEditable($currentEditable);
                   }else {
 
                     $br.insertAfter($currentEditable);
@@ -166,17 +176,17 @@
 
                     $currentEditable = addEditable($tagbox, post_text);
 
-                    $currentEditable.insertAfter($br).focus();
+                    focusEditable($currentEditable.insertAfter($br));
                   }
 
-                }else if (key === BKSP && $currentEditable.text().length === 0) {
+                }else if (key === BKSP) {
 
-                  $currentEditable = removeEditable($currentEditable);
+                  if ($currentEditable.text().length === 0 || offset === 0) {
 
-                  focusEditable($currentEditable);
+                    e.preventDefault();
 
-                  setCursorPosition($currentEditable.get(0));
-
+                    $currentEditable = removeEditable($currentEditable);
+                  }
                 }
               });
   }
