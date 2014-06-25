@@ -138,9 +138,36 @@
 
                   e.preventDefault();
 
-                  $("<br/>").appendTo($tagbox);
+                  var $br = $("<br/>");
 
-                  $currentEditable = addEditable($tagbox);
+                  var selection = window.getSelection(),
+                      offset = selection.focusOffset;
+
+                  var cur_text = $currentEditable.text();
+
+                  var pre_text, post_text;
+
+                  if (offset === 0){
+
+                    $br.insertBefore($currentEditable);
+
+                    $currentEditable = addEditable($tagbox);
+
+                    $currentEditable.insertBefore($br).focus();
+                  }else {
+
+                    $br.insertAfter($currentEditable);
+
+                    pre_text = cur_text.substr(0, offset);
+
+                    post_text = cur_text.substr(offset);
+
+                    $currentEditable.text(pre_text);
+
+                    $currentEditable = addEditable($tagbox, post_text);
+
+                    $currentEditable.insertAfter($br).focus();
+                  }
 
                 }else if (key === BKSP && $currentEditable.text().length === 0) {
 
