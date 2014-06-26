@@ -20,8 +20,15 @@
       RIGHT  = 39,
       BOTTOM = 50,
       BKSP   = 8,
-      ESC    = 27;
+      ESC    = 27,
+      SPACE  = 32;
 
+  function getCursorPosition () {
+
+    var sel = window.getSelection();
+
+    return sel.anchorOffset;
+  }
 
   function setCursorPosition (el, pos) {
 
@@ -44,6 +51,11 @@
 
       el = el.childNodes[0];
 
+      if (!el) {
+
+        return;
+      }
+
       range.setStart(el, pos);
 
       range.setEnd(el, nodeTextLength);
@@ -56,10 +68,9 @@
       sel.removeAllRanges();
 
       sel.addRange(range);
-
     }
 
-    //TODO: Position not implement for IE
+    //TODO: Position not implemented for IE
     else if(typeof document.body.createTextRange !== "undefined") {
 
       range = document.body.createTextRange();
@@ -79,6 +90,11 @@
     return $editable.attr("contenteditable", "true").focus();
   }
 
+  function spaceToNBSP (text) {
+
+    return text.replace(/\ /g, "&nbsp;");
+  }
+
   function addEditable ($container, text, isHtml) {
 
     text = text || "";
@@ -89,6 +105,10 @@
                                [isHtml? "html": "text"](text)
                                .appendTo($container);
 
+    text = spaceToNBSP(text);
+
+    $newNode.html(text);
+
     return focusEditable($newNode);
   }
 
@@ -98,7 +118,7 @@
 
     if($prevNode.length === 0){
 
-      return $editable.text("");
+      return $editable;
     }else {
 
       while ($editable.prev(".tagbox-wg").length === 0) {
@@ -141,11 +161,27 @@
     var $tagbox = $("<div/>").addClass("tagbox tagbox-input")
                              .prependTo($container);
 
-    var $currentEditable = addEditable($tagbox, existingVal);
+    var existingLines = existingVal.split("\n"),
+        numLines = existingLines.length;
+
+    var $currentEditable = null;
+
+    $.each(existingLines, function(i, line){
+
+      $currentEditable = addEditable($tagbox, line);
+
+      if ( i<numLines-1 ) {
+
+        $("<br/>").insertAfter($currentEditable);
+      }
+    });
+
+    var recentOffset = 0;
 
     /* Event Handlers */
-
     function onClickHandler (e) {
+
+      var selection = null;
 
       var $node = $(e.target);
 
@@ -153,6 +189,10 @@
       if ($node.hasClass("tagbox-wg")) {
 
         $currentEditable = focusEditable($node);
+
+        selection = window.getSelection();
+
+        recentOffset = selection.focusOffset;
       }
     }
 
@@ -167,15 +207,15 @@
                 var selection = window.getSelection(),
                     offset = selection.focusOffset;
 
+                var curText = $currentEditable.text();
+
+                var preText, postText;
+
                 if (key === RETURN) {
 
                   e.preventDefault();
 
                   var $br = $("<br/>");
-
-                  var curText = $currentEditable.text();
-
-                  var preText, postText;
 
                   if (offset === 0 && curText.length !== 0){
 
@@ -207,6 +247,16 @@
 
                     $currentEditable = removeEditable($currentEditable);
                   }
+                }else if (key === SPACE) {
+
+                  e.preventDefault();
+
+                  preText = spaceToNBSP(curText.substr(0, offset));
+                  postText = spaceToNBSP(curText.substr(offset));
+
+                  $currentEditable.html(preText + "&nbsp;" + postText);
+
+                  setCursorPosition($currentEditable.get(0), offset + 1);
                 }
               });
   }
