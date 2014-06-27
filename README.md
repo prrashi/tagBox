@@ -1,4 +1,4 @@
 tagBox
 ======
 
-Facebook style Comment/Tagging Textarea/Input
+Yet Another Rich Text Editor.
