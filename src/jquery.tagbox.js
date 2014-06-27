@@ -18,7 +18,7 @@
       LEFT   = 37,
       UP     = 38,
       RIGHT  = 39,
-      BOTTOM = 50,
+      DOWN   = 40,
       BKSP   = 8,
       ESC    = 27,
       SPACE  = 32;
@@ -83,11 +83,18 @@
     }
   }
 
-  function focusEditable ($editable) {
+  function focusEditable ($editable, cursorPosition) {
 
     $editable.siblings("span.tagbox-wg[contenteditable]").removeAttr("contenteditable");
 
-    return $editable.attr("contenteditable", "true").focus();
+    $editable.attr("contenteditable", "true").focus();
+
+    if (cursorPosition !== undefined) {
+
+      setCursorPosition($editable.get(0), cursorPosition);
+    }
+
+    return $editable;
   }
 
   function spaceToNBSP (text) {
@@ -196,9 +203,20 @@
       }
     }
 
+    var cursorPosition = 0;
+
     $container.on("click", onClickHandler)
               .on("keyup", "[contenteditable='true']", function (e) {
 
+                var key = e.which || e.keyCode;
+
+                if (key !== UP && key !== DOWN) {
+
+                  var selection = window.getSelection(),
+                      offset = selection.focusOffset;
+
+                  cursorPosition = offset;
+                }
               })
               .on("keydown", "[contenteditable='true']", function (e) {
 
@@ -257,6 +275,32 @@
                   $currentEditable.html(preText + "&nbsp;" + postText);
 
                   setCursorPosition($currentEditable.get(0), offset + 1);
+                }else if (key === UP || key === DOWN) {
+
+                  e.preventDefault();
+
+                  var $prevElement = $currentEditable.prevAll(".tagbox-wg").eq(0),
+                      $nextElement = $currentEditable.nextAll(".tagbox-wg").eq(0),
+                      $focusElement = null;
+
+                  $focusElement = (key === UP ? $prevElement: $nextElement);
+
+                  if ($focusElement.length === 0) {
+
+                    return;
+                  }
+
+                  var currentCursorPositon;
+
+                  if ($focusElement.text().length < cursorPosition) {
+
+                    currentCursorPositon = $focusElement.text().length;
+                  }else {
+
+                    currentCursorPositon = cursorPosition;
+                  }
+
+                  $currentEditable = focusEditable($focusElement, currentCursorPositon);
                 }
               });
   }
