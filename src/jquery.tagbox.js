@@ -27,11 +27,11 @@
   var CTRLKey = 17;
 
   var B = 66,// ctrl + B for bolding
-      I = 73,// ctrl + I for bolding
+      I = 73,// ctrl + I for italicizing
       U = 85;// ctrl + u for underline
 
   var allTrackedKeys = [RETURN, LEFT, UP, RIGHT, DOWN, BKSP,
-                     ESC, SPACE, DEL, CTRLKey, B, I, U];
+                        ESC, SPACE, DEL, CTRLKey, B, I, U];
 
   function getCursorPosition () {
 
