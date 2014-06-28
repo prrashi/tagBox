@@ -1,1 +1,70 @@
-.tagbox-container .tagbox-input{display:block;width:100%;padding:6px 12px;font-size:14px;line-height:1.42857143;color:#555;background-color:#fff;background-image:none;border:1px solid #ccc;border-radius:4px;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,.075);box-shadow:inset 0 1px 1px rgba(0,0,0,.075);-webkit-transition:border-color ease-in-out .15s,box-shadow ease-in-out .15s;transition:border-color ease-in-out .15s,box-shadow ease-in-out .15s;box-sizing:border-box;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;-o-box-sizing:border-box}.tagbox-container .tagbox-input:focus{border-color:#66afe9;outline:0;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);box-shadow:inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6)}.tagbox-container .tagbox-input[disabled],.tagbox-container .tagbox-input[readonly]{cursor:not-allowed;background-color:#eee;opacity:1}.tagbox-container .tagbox-input .tagbox-wg{display:inline-block;vertical-align:top}.tagbox-container .tagbox-input .tagbox-wg[contenteditable]{min-width:5px}.tagbox-container .tagbox-input .tagbox-wg[contenteditable]:focus{outline:0 solid transparent}
+.tagbox-container {
+  color: #333333;
+}
+.tagbox-container .tagbox-input {
+  display: block;
+  width: 100%;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+  transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -o-box-sizing: border-box;
+}
+.tagbox-container .tagbox-input:focus {
+  border-color: #66afe9;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
+}
+.tagbox-container .tagbox-input[disabled],
+.tagbox-container .tagbox-input[readonly] {
+  cursor: not-allowed;
+  background-color: #eee;
+  opacity: 1;
+}
+.tagbox-container .tagbox-input .tagbox-wg {
+  display: inline-block;
+  vertical-align: top;
+}
+.tagbox-container .tagbox-input .tagbox-wg .inner-tagbox-wg[contenteditable],
+.tagbox-container .tagbox-input .tagbox-wg[contenteditable] {
+  min-width: 5px;
+}
+.tagbox-container .tagbox-input .tagbox-wg .inner-tagbox-wg[contenteditable]:focus,
+.tagbox-container .tagbox-input .tagbox-wg[contenteditable]:focus {
+  outline: 0px solid transparent;
+}
+.tagbox-container .tagbox-input .tagbox-wg .inner-tagbox-wg.tagbox-underline {
+  text-decoration: underline;
+}
+.tagbox-container .tagbox-input .tagbox-wg .inner-tagbox-wg.tagbox-bold {
+  font-weight: bold;
+}
+.tagbox-container .tagbox-input .tagbox-wg .inner-tagbox-wg.tagbox-italic {
+  font-style: italic;
+}
+.tagbox-container .tagbox-input .tagbox-wg .inner-tagbox-wg.tagbox-anchor {
+  color: #4baad3;
+}
+.tagbox-container .tagbox-input .tagbox-wg .inner-tagbox-wg.tagbox-anchor:active,
+.tagbox-container .tagbox-input .tagbox-wg .inner-tagbox-wg.tagbox-anchor:focus,
+.tagbox-container .tagbox-input .tagbox-wg .inner-tagbox-wg.tagbox-anchor:visited {
+  color: #4baad3;
+}
+.tagbox-container .tagbox-input .tagbox-wg .inner-tagbox-wg.tagbox-label {
+  background-color: rgba(75, 170, 211, 0.8);
+  color: #333;
+  border: 1px 1px 1px 1px #4baad3;
+  border-radius: 4px;
+}

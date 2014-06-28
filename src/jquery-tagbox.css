@@ -1,3 +1,6 @@
+.tagbox-container {
+  color: #333333;
+}
 .tagbox-container .tagbox-input {
   display: block;
   width: 100%;
@@ -34,9 +37,34 @@
   display: inline-block;
   vertical-align: top;
 }
+.tagbox-container .tagbox-input .tagbox-wg .inner-tagbox-wg[contenteditable],
 .tagbox-container .tagbox-input .tagbox-wg[contenteditable] {
   min-width: 5px;
 }
+.tagbox-container .tagbox-input .tagbox-wg .inner-tagbox-wg[contenteditable]:focus,
 .tagbox-container .tagbox-input .tagbox-wg[contenteditable]:focus {
   outline: 0px solid transparent;
+}
+.tagbox-container .tagbox-input .tagbox-wg .inner-tagbox-wg.tagbox-underline {
+  text-decoration: underline;
+}
+.tagbox-container .tagbox-input .tagbox-wg .inner-tagbox-wg.tagbox-bold {
+  font-weight: bold;
+}
+.tagbox-container .tagbox-input .tagbox-wg .inner-tagbox-wg.tagbox-italic {
+  font-style: italic;
+}
+.tagbox-container .tagbox-input .tagbox-wg .inner-tagbox-wg.tagbox-anchor {
+  color: #4baad3;
+}
+.tagbox-container .tagbox-input .tagbox-wg .inner-tagbox-wg.tagbox-anchor:active,
+.tagbox-container .tagbox-input .tagbox-wg .inner-tagbox-wg.tagbox-anchor:focus,
+.tagbox-container .tagbox-input .tagbox-wg .inner-tagbox-wg.tagbox-anchor:visited {
+  color: #4baad3;
+}
+.tagbox-container .tagbox-input .tagbox-wg .inner-tagbox-wg.tagbox-label {
+  background-color: rgba(75, 170, 211, 0.8);
+  color: #333;
+  border: 1px 1px 1px 1px #4baad3;
+  border-radius: 4px;
 }

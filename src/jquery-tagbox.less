@@ -1,3 +1,5 @@
+@blue: #4baad3;
+
 .box-sizing(@type: border-box){
 
   box-sizing: @type;
@@ -19,6 +21,8 @@
 }
 
 .tagbox-container {
+
+    color: #333333;
 
   .tagbox-input {
     display: block;
@@ -55,12 +59,48 @@
       display: inline-block;
       vertical-align: top;
 
-      &[contenteditable] {
+      .inner-tagbox-wg[contenteditable], &[contenteditable] {
 
         min-width: 5px;
         &:focus {
 
           outline: 0px solid transparent;
+        }
+      }
+
+      .inner-tagbox-wg {
+
+        &.tagbox-underline {
+
+          text-decoration: underline;
+        }
+
+        &.tagbox-bold {
+
+          font-weight: bold;
+        }
+
+        &.tagbox-italic {
+
+          font-style: italic;
+        }
+
+        &.tagbox-anchor {
+
+          color: @blue;
+
+          &:active, &:focus, &:visited {
+
+            color: @blue;
+          }
+        }
+
+        &.tagbox-label {
+
+          background-color: fade(@blue, 80%);
+          color: #333;
+          border: 1px 1px 1px 1px @blue;
+          border-radius: 4px;
         }
       }
     }

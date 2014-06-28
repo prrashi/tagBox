@@ -21,7 +21,17 @@
       DOWN   = 40,
       BKSP   = 8,
       ESC    = 27,
-      SPACE  = 32;
+      SPACE  = 32,
+      DEL    = 46;
+
+  var CTRLKey = 17;
+
+  var B = 66,// ctrl + B for bolding
+      I = 73,// ctrl + I for bolding
+      U = 85;// ctrl + u for underline
+
+  var allTrackedKeys = [RETURN, LEFT, UP, RIGHT, DOWN, BKSP,
+                     ESC, SPACE, DEL, CTRLKey, B, I, U];
 
   function getCursorPosition () {
 
@@ -85,7 +95,7 @@
 
   function focusEditable ($editable, cursorPosition) {
 
-    $editable.siblings("span.tagbox-wg[contenteditable]").removeAttr("contenteditable");
+    $editable.siblings("[contenteditable]").removeAttr("contenteditable");
 
     $editable.attr("contenteditable", "true").focus();
 
@@ -102,19 +112,51 @@
     return text.replace(/\ /g, "&nbsp;");
   }
 
-  function addEditable ($container, text, isHtml) {
+  var allowedTags  = {
+
+    "bold"     : {
+                   "class": "tagbox-bold"
+                 },
+    "italic"   : {
+                   "class": "tagbox-italic"
+                 },
+    "underline": {
+                   "class": "tagbox-underline"
+                 },
+    "anchor"   : {
+                   "class": "tagbox-anchor"
+                 },
+    "label"    : {
+                   "html": "tagbox-label"
+                 }
+  };
+
+  function addInnerEditable ($parent, tagType, text) {
 
     text = text || "";
 
-    $container.children("span.tagbox-wg").removeAttr("contenteditable");
+    text = spaceToNBSP(text);
 
-    var $newNode =  $("<span/>").addClass("tagbox-wg")
-                               [isHtml? "html": "text"](text)
-                               .appendTo($container);
+    $parent.blur().removeAttr("contenteditable");
+
+    var $newNode = $("<span/>").addClass("inner-tagbox-wg")
+                               .addClass(allowedTags[tagType].class)
+                               .attr("contenteditable", "true")
+                               .html(text)
+                               .appendTo($parent);
+
+    return focusEditable($newNode);
+  }
+
+  function addEditable ($container, text) {
+
+    text = text || "";
 
     text = spaceToNBSP(text);
 
-    $newNode.html(text);
+    var $newNode =  $("<span/>").addClass("tagbox-wg")
+                               .html(text)
+                               .appendTo($container);
 
     return focusEditable($newNode);
   }
@@ -183,7 +225,7 @@
       }
     });
 
-    var recentOffset = 0;
+    var cursorPosition = 0;
 
     /* Event Handlers */
     function onClickHandler (e) {
@@ -199,133 +241,168 @@
 
         selection = window.getSelection();
 
-        recentOffset = selection.focusOffset;
+        cursorPosition = selection.focusOffset;
       }
     }
 
-    var cursorPosition = 0;
+    function onKeyDownHandler (e) {
+
+      var key = e.which || e.keyCode;
+
+      // If the key is not being tracked, don't waste your time, just Return!
+      if ($.inArray(key, allTrackedKeys) < 0) {
+
+        return;
+      }
+
+      var selection = window.getSelection(),
+          offset = selection.focusOffset;
+
+      var curText = $currentEditable.text();
+
+      var preText, postText;
+
+      if (e.ctrlKey && key === B) {
+
+        e.preventDefault();
+
+        $currentEditable = addInnerEditable($currentEditable, "bold");
+      }else if (e.ctrlKey && key === U) {
+
+        e.preventDefault();
+
+        $currentEditable = addInnerEditable($currentEditable, "underline");
+      }else if (e.ctrlKey && key === I) {
+
+        e.preventDefault();
+
+        $currentEditable = addInnerEditable($currentEditable, "italic");
+      }else if (key === RETURN) {
+
+        e.preventDefault();
+
+        var $br = $("<br/>");
+
+        if (offset === 0 && curText.length !== 0){
+
+          $br.insertBefore($currentEditable);
+
+          addEditable($tagbox).insertBefore($br);
+
+          focusEditable($currentEditable);
+        }else {
+
+          $br.insertAfter($currentEditable);
+
+          preText = curText.substr(0, offset);
+
+          postText = curText.substr(offset);
+
+          $currentEditable.text(preText);
+
+          $currentEditable = addEditable($tagbox, postText);
+
+          focusEditable($currentEditable.insertAfter($br));
+        }
+      }else if (key === BKSP) {
+
+        if (curText.length === 0 || offset === 0) {
+
+          e.preventDefault();
+
+          $currentEditable = removeEditable($currentEditable);
+        }
+      }else if(key === DEL) {
+
+        if (curText.length === 0 || offset === curText.length) {
+
+          e.preventDefault();
+
+          var $nextElement = $currentEditable.nextAll(".tagbox-wg").eq(0);
+
+          if ($nextElement.length > 0) {
+
+            $currentEditable = removeEditable($nextElement);
+          }
+        }
+      }else if (key === SPACE) {
+
+        e.preventDefault();
+
+        preText = spaceToNBSP(curText.substr(0, offset));
+        postText = spaceToNBSP(curText.substr(offset));
+
+        $currentEditable.html(preText + "&nbsp;" + postText);
+
+        setCursorPosition($currentEditable.get(0), offset + 1);
+      }else if (key === UP || key === DOWN || key === LEFT || key === RIGHT) {
+
+        var $prevElement = $currentEditable.prevAll(".tagbox-wg").eq(0),
+            $nextElement = $currentEditable.nextAll(".tagbox-wg").eq(0),
+            $focusElement = null;
+
+        var currentCursorPositon = getCursorPosition();
+
+        if (key === UP) {
+
+          $focusElement = $prevElement;
+        }else if (key === DOWN) {
+
+          $focusElement = $nextElement;
+        }else if(key === LEFT && currentCursorPositon === 0) {
+
+          $focusElement = $prevElement;
+        }else if(key === RIGHT && currentCursorPositon === curText.length) {
+
+          $focusElement = $nextElement;
+        }
+
+        if (!$focusElement || $focusElement.length === 0) {
+
+          return;
+        }
+
+        e.preventDefault();
+
+        var focusElementText = $focusElement.text();
+
+        if (key === LEFT) {
+
+          currentCursorPositon = focusElementText.length;
+        }else if(key === RIGHT) {
+
+          currentCursorPositon = 0;
+        }else if (key === UP || key === DOWN) {
+
+          if (focusElementText.length < cursorPosition) {
+
+            currentCursorPositon = focusElementText.length;
+          }else {
+
+            currentCursorPositon = cursorPosition;
+          }
+        }
+
+        $currentEditable = focusEditable($focusElement, currentCursorPositon);
+      }
+    }
+
+    function onKeyUpHandler(e) {
+
+      var key = e.which || e.keyCode;
+
+      if (key !== UP && key !== DOWN) {
+
+        var selection = window.getSelection(),
+            offset = selection.focusOffset;
+
+        cursorPosition = offset;
+      }
+    }
 
     $container.on("click", onClickHandler)
-              .on("keyup", "[contenteditable='true']", function (e) {
-
-                var key = e.which || e.keyCode;
-
-                if (key !== UP && key !== DOWN) {
-
-                  var selection = window.getSelection(),
-                      offset = selection.focusOffset;
-
-                  cursorPosition = offset;
-                }
-              })
-              .on("keydown", "[contenteditable='true']", function (e) {
-
-                var key = e.which || e.keyCode;
-
-                var selection = window.getSelection(),
-                    offset = selection.focusOffset;
-
-                var curText = $currentEditable.text();
-
-                var preText, postText;
-
-                if (key === RETURN) {
-
-                  e.preventDefault();
-
-                  var $br = $("<br/>");
-
-                  if (offset === 0 && curText.length !== 0){
-
-                    $br.insertBefore($currentEditable);
-
-                    addEditable($tagbox).insertBefore($br);
-
-                    focusEditable($currentEditable);
-                  }else {
-
-                    $br.insertAfter($currentEditable);
-
-                    preText = curText.substr(0, offset);
-
-                    postText = curText.substr(offset);
-
-                    $currentEditable.text(preText);
-
-                    $currentEditable = addEditable($tagbox, postText);
-
-                    focusEditable($currentEditable.insertAfter($br));
-                  }
-
-                }else if (key === BKSP) {
-
-                  if ($currentEditable.text().length === 0 || offset === 0) {
-
-                    e.preventDefault();
-
-                    $currentEditable = removeEditable($currentEditable);
-                  }
-                }else if (key === SPACE) {
-
-                  e.preventDefault();
-
-                  preText = spaceToNBSP(curText.substr(0, offset));
-                  postText = spaceToNBSP(curText.substr(offset));
-
-                  $currentEditable.html(preText + "&nbsp;" + postText);
-
-                  setCursorPosition($currentEditable.get(0), offset + 1);
-                }else if (key === UP || key === DOWN || key === LEFT || key === RIGHT) {
-
-                  var $prevElement = $currentEditable.prevAll(".tagbox-wg").eq(0),
-                      $nextElement = $currentEditable.nextAll(".tagbox-wg").eq(0),
-                      $focusElement = null;
-
-                  var currentCursorPositon = getCursorPosition();
-
-                  if (key === UP) {
-
-                    $focusElement = $prevElement;
-                  }else if (key === DOWN) {
-
-                    $focusElement = $nextElement;
-                  }else if(key === LEFT && currentCursorPositon === 0) {
-
-                    $focusElement = $prevElement;
-                  }else if(key === RIGHT && currentCursorPositon === curText.length) {
-
-                    $focusElement = $nextElement;
-                  }
-
-                  if (!$focusElement || $focusElement.length === 0) {
-
-                    return;
-                  }
-
-                  e.preventDefault();
-
-                  var focusElementText = $focusElement.text();
-
-                  if (key === LEFT) {
-
-                    currentCursorPositon = focusElementText.length;
-                  }else if(key === RIGHT) {
-
-                    currentCursorPositon = 0;
-                  }else if (key === UP || key === DOWN) {
-
-                    if (focusElementText.length < cursorPosition) {
-
-                      currentCursorPositon = focusElementText.length;
-                    }else {
-
-                      currentCursorPositon = cursorPosition;
-                    }
-                  }
-
-                  $currentEditable = focusEditable($focusElement, currentCursorPositon);
-                }
-              });
+              .on("keyup", "[contenteditable='true']", onKeyUpHandler)
+              .on("keydown", "[contenteditable='true']", onKeyDownHandler);
   }
 
   function tagBox (options) {
