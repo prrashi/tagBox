@@ -99,10 +99,9 @@
 
     $editable.attr("contenteditable", "true").focus();
 
-    if (cursorPosition !== undefined) {
+    cursorPosition = cursorPosition || $editable.text().length;
 
-      setCursorPosition($editable.get(0), cursorPosition);
-    }
+    setCursorPosition($editable.get(0), cursorPosition);
 
     return $editable;
   }
@@ -127,7 +126,7 @@
                    "class": "tagbox-anchor"
                  },
     "label"    : {
-                   "html": "tagbox-label"
+                   "class": "tagbox-label"
                  }
   };
 
@@ -139,8 +138,10 @@
 
     $parent.blur().removeAttr("contenteditable");
 
+    var tagClass = allowedTags[tagType]?allowedTags[tagType].class: "";
+
     var $newNode = $("<span/>").addClass("inner-tagbox-wg")
-                               .addClass(allowedTags[tagType].class)
+                               .addClass(tagClass)
                                .attr("contenteditable", "true")
                                .html(text)
                                .appendTo($parent);
@@ -157,6 +158,8 @@
     var $newNode =  $("<span/>").addClass("tagbox-wg")
                                .html(text)
                                .appendTo($container);
+
+    //$newNode = addInnerEditable($newNode);
 
     return focusEditable($newNode);
   }
@@ -266,7 +269,13 @@
 
         e.preventDefault();
 
-        $currentEditable = addInnerEditable($currentEditable, "bold");
+        if (!$currentEditable.hasClass("tagbox-bold")) {
+
+          $currentEditable = addInnerEditable($currentEditable, "bold");
+        }else {
+
+          $currentEditable = focusEditable($currentEditable.parent());
+        }
       }else if (e.ctrlKey && key === U) {
 
         e.preventDefault();
