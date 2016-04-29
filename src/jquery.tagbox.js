@@ -10,7 +10,7 @@
     };
   }
 
-  // No Defaults!?
+  // No Defaults!
   var DEFAULTS = {
 
   };
