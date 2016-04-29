@@ -10,7 +10,7 @@
     };
   }
 
-  // No Defaults! HOTFIX
+  // No Defaults!
   var DEFAULTS = {
 
   };
